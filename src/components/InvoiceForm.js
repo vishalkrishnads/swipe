@@ -8,6 +8,7 @@ import Card from 'react-bootstrap/Card';
 import InvoiceItem from './InvoiceItem';
 import InvoiceModal from './InvoiceModal';
 import InputGroup from 'react-bootstrap/InputGroup';
+import { useNavigate } from 'react-router-dom';
 
 class InvoiceForm extends React.Component {
   constructor(props) {
@@ -121,6 +122,9 @@ class InvoiceForm extends React.Component {
     this.setState({isOpen: true})
   };
   closeModal = (event) => this.setState({isOpen: false});
+  goBack = () => {
+    this.props.navigate(-1);
+  }
   render() {
     return (<Form onSubmit={this.openModal}>
       <Row>
@@ -206,6 +210,7 @@ class InvoiceForm extends React.Component {
         <Col md={4} lg={3}>
           <div className="sticky-top pt-md-3 pt-xl-4">
             <Button variant="primary" type="submit" className="d-block w-100">Review Invoice</Button>
+            <Button variant='outline-primary' onClick={this.goBack} className='d-block w-100 mt-2'>Save Invoice</Button>
             <InvoiceModal showModal={this.state.isOpen} closeModal={this.closeModal} info={this.state} items={this.state.items} currency={this.state.currency} subTotal={this.state.subTotal} taxAmmount={this.state.taxAmmount} discountAmmount={this.state.discountAmmount} total={this.state.total}/>
             <Form.Group className="mb-3">
               <Form.Label className="fw-bold">Currency:</Form.Label>
@@ -245,4 +250,13 @@ class InvoiceForm extends React.Component {
   }
 }
 
-export default InvoiceForm;
+const Editor = () => {
+
+  const navigate = useNavigate()
+
+  return <InvoiceForm 
+    navigate={navigate}
+  />
+}
+
+export default Editor;

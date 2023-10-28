@@ -1,0 +1,21 @@
+.item {
+    height: 60px;
+    margin-bottom: 2px;
+}
+
+.invoice {
+    border-radius: 10px;
+    height: 100%;
+}
+
+.invoice:hover {
+    background-color: #e6e6e6;
+}
+
+/* Custom CSS for 'xs' screen sizes */
+@media (max-width: 767px) {
+    .item {
+      height: 100px;
+    }
+}
+  
