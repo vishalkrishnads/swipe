@@ -2,6 +2,7 @@ import { getData, setData } from '../db'
 
 const addInvoice = (state, invoice) => {
     const result = [...state, invoice]
+    result.sort((a, b) => parseInt(a.invoiceNumber) - parseInt(b.invoiceNumber));
     setData(result);
     return result
 }
@@ -10,12 +11,13 @@ const editInvoice = (state, payloadInvoice) => {
     const result = state.map((invoice) => 
         invoice.id === payloadInvoice.id ? payloadInvoice : invoice
     )
+    result.sort((a, b) => a.invoiceNumber - b.invoiceNumber);
     setData(result);
     return result
 }
 
 const deleteInvoice = (state, payloadInvoice) => {
-    const result = state.filter((invoice) => invoice.id !== payloadInvoice)
+    const result = state.filter((invoice) => invoice.id !== payloadInvoice.id)
     setData(result);
     return result
 }

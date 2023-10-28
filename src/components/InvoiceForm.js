@@ -9,6 +9,7 @@ import InvoiceItem from './InvoiceItem';
 import InvoiceModal from './InvoiceModal';
 import InputGroup from 'react-bootstrap/InputGroup';
 import { useNavigate } from 'react-router-dom';
+import { connect } from 'react-redux';
 
 class InvoiceForm extends React.Component {
   constructor(props) {
@@ -120,10 +121,39 @@ class InvoiceForm extends React.Component {
     event.preventDefault()
     this.handleCalculateTotal()
     this.setState({isOpen: true})
+    // this.saveInvoice();
   };
-  closeModal = (event) => this.setState({isOpen: false});
+  closeModal = (event) => {
+    // this.goBack();
+    this.setState({isOpen: false});
+  };
   goBack = () => {
     this.props.navigate(-1);
+  }
+  saveInvoice = () => {
+    this.handleCalculateTotal()
+    this.props.addInvoice({
+      id: (+ new Date() + Math.floor(Math.random() * 999999)).toString(36),
+      currency: this.state.currency,
+      currentDate: this.state.currentDate,
+      invoiceNumber: this.state.invoiceNumber,
+      dateOfIssue: this.state.dateOfIssue,
+      billTo: this.state.billTo,
+      billToEmail: this.state.billToEmail,
+      billToAddress: this.state.billToAddress,
+      billFrom: this.state.billFrom,
+      billFromEmail: this.state.billFromEmail,
+      billFromAddress: this.state.billFromAddress,
+      notes: this.state.notes,
+      total: this.state.total,
+      subTotal: this.state.subTotal,
+      taxRate: this.state.taxRate,
+      taxAmmount: this.state.taxAmmount,
+      discountRate: this.state.discountRate,
+      discountAmmount: this.state.discountAmmount,
+      items: this.state.items || []
+    });
+    this.goBack();
   }
   render() {
     return (<Form onSubmit={this.openModal}>
@@ -147,7 +177,11 @@ class InvoiceForm extends React.Component {
               </div>
               <div className="d-flex flex-row align-items-center">
                 <span className="fw-bold me-2">Invoice&nbsp;Number:&nbsp;</span>
-                <Form.Control type="number" value={this.state.invoiceNumber} name={"invoiceNumber"} onChange={(event) => this.editField(event)} min="1" style={{
+                <Form.Control type="number" value={this.state.invoiceNumber} name={"invoiceNumber"} onChange={(event) => {
+                  if(!this.props.usedNumbers.includes(parseInt(event.target.value)))
+                    this.editField(event)
+                  else alert('This invoice number has already been used! Please choose another.')
+                }} min="1" style={{
                     maxWidth: '70px'
                   }} required="required"/>
               </div>
@@ -209,9 +243,8 @@ class InvoiceForm extends React.Component {
         </Col>
         <Col md={4} lg={3}>
           <div className="sticky-top pt-md-3 pt-xl-4">
-            <Button variant="primary" type="submit" className="d-block w-100">Review Invoice</Button>
-            <Button variant='outline-primary' onClick={this.goBack} className='d-block w-100 mt-2'>Save Invoice</Button>
-            <InvoiceModal showModal={this.state.isOpen} closeModal={this.closeModal} info={this.state} items={this.state.items} currency={this.state.currency} subTotal={this.state.subTotal} taxAmmount={this.state.taxAmmount} discountAmmount={this.state.discountAmmount} total={this.state.total}/>
+            <Button variant="primary" type="submit" className="d-block w-100">Save & Review Invoice</Button>
+            <InvoiceModal showModal={this.state.isOpen} closeModal={this.closeModal} onSave={this.saveInvoice} info={this.state} items={this.state.items} currency={this.state.currency} subTotal={this.state.subTotal} taxAmmount={this.state.taxAmmount} discountAmmount={this.state.discountAmmount} total={this.state.total}/>
             <Form.Group className="mb-3">
               <Form.Label className="fw-bold">Currency:</Form.Label>
               <Form.Select onChange={event => this.onCurrencyChange({currency: event.target.value})} className="btn btn-light my-1" aria-label="Change Currency">
@@ -250,13 +283,30 @@ class InvoiceForm extends React.Component {
   }
 }
 
-const Editor = () => {
+const mapStateToProps = (state) => ({
+  invoices: state.manager
+})
+
+const mapDispatchToProps = (dispatch) => ({
+  addInvoice: (invoice) => dispatch({ type: 'add', payload: invoice }),
+  editInvoice: (invoice) => dispatch({ type: 'edit', payload: invoice })
+})
+
+const Editor = ({ invoices, addInvoice, editInvoice }) => {
 
   const navigate = useNavigate()
 
+  const getUsedNumbers = () => {
+    let list = [];
+    for(const each of invoices) list.push(parseInt(each.invoiceNumber))
+    return list;
+  }
+
   return <InvoiceForm 
     navigate={navigate}
+    addInvoice={addInvoice}
+    usedNumbers={getUsedNumbers()}
   />
 }
 
-export default Editor;
+export default connect(mapStateToProps, mapDispatchToProps)(Editor);
