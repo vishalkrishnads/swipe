@@ -1,7 +1,7 @@
-<img src="https://github.com/vishalkrishnads/swipe/assets/50231856/d8791518-ebaa-41eb-9901-c2dc657769a5" alt="Swipe" width="250" align="right">
+<img src="https://github.com/vishalkrishnads/swipe/assets/50231856/f4384d15-5c3e-4ab7-8dae-ec8b485ae742" alt="Swipe" width="250" align="right">
 
 # `Swipe`
-A simple web app, forked from [this work](https://github.com/johnuberbacher/invoice-generator) by [@johnuberbacher](https://github.com/johnuberbacher), that allows creating invoices using a form. It allows you to create and save invoices, view and/or edit them later at your will. Built with [React](https://react.dev) & hosted on [Vercel](https://vercel.com).
+A simple web app, forked from [this work](https://github.com/johnuberbacher/invoice-generator) by [@johnuberbacher](https://github.com/johnuberbacher), that allows creating invoices using a form. It allows you to create and save invoices, view and/or edit them later at your will. Built with [React](https://react.dev) & hosted on [Vercel](https://vercel.com). View deployment [here](https://swipe-virid.vercel.app/) 🎉
 
 > :warning: This is a submission of an assignment assigned to me by [Swipe (YC S21)](https://getswipe.in/) as part of the interview process for a **Frontend Engineer Intern** role and not one of my personal projects.
 
@@ -50,7 +50,7 @@ If you're familiar with the [original app](https://invoice-generator-react.netli
 I hope you will find the UI easy to use and won't have to refer this often. Hoping to hear your feedback!
 
 ## Setup Guide
-You can view the application live here. However, if you want to set it up locally in your machine, follow this setup guide.
+You can view the application live [here](https://swipe-virid.vercel.app/). However, if you want to set it up locally in your machine, follow this setup guide.
 
 ### Prerequisites
 Make sure you have these prerequisites satisfied in your PC:
