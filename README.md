@@ -8,6 +8,7 @@ A simple web app, forked from [this work](https://github.com/johnuberbacher/invo
 ## Table Of Contents
 * [Problem Statement](#problem-statement)
 * [What's done](#whats-done)
+* [How To Use](#how-to-use)
 * [Setup Guide](#setup-guide)
     * [Prerequisites](#prerequisites)
     * [Setup Guide](#setup-guide)
@@ -37,6 +38,16 @@ All of the stated requirements have been fulfilled. A summary of the changes are
 * Ability to view, edit & delete an invoice
 * Option to copy to a new invoice from an existing one
 * A button to add a new invoice that redirects to the original invoice editor form
+
+Any new code written has been documented, but all of the existing source which has been left unmodified haven't been. If you find it hard to use the application with it's new UI, try reading the instructions below.
+
+## How To Use
+If you're familiar with the [original app](https://invoice-generator-react.netlify.app/), then the UI will be familiar to you.
+
+* Home page: Initially, there will be a create invoice button, which will take you to the original create invoice page. Once you add an invoice, you'll see it in a list to the left of the home page. There will be action buttons to the right of each invoice which will do exactly they say. You can click on the invoice number/bill from name area to open and review the invoice.
+* Invoice editor: This is the screen which will allow you to both add a new invoice and edit existing ones. This behaves exactly similar to the original application. The only differences are that it will show a **Save Invoice** button in the pop up modal when you review an invoice & that it won't allow you to choose an invoice number that's already chosen.
+
+I hope you will find the UI easy to use and won't have to refer this often. Hoping to hear your feedback!
 
 ## Setup Guide
 You can view the application live here. However, if you want to set it up locally in your machine, follow this setup guide.
