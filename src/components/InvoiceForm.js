@@ -8,7 +8,9 @@ import Card from 'react-bootstrap/Card';
 import InvoiceItem from './InvoiceItem';
 import InvoiceModal from './InvoiceModal';
 import InputGroup from 'react-bootstrap/InputGroup';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { connect } from 'react-redux';
+import { getUsedNumbers, generateId } from '../redux/reducers/invoicesReducer';
 
 class InvoiceForm extends React.Component {
   constructor(props) {
@@ -45,6 +47,20 @@ class InvoiceForm extends React.Component {
     this.editField = this.editField.bind(this);
   }
   componentDidMount(prevProps) {
+    // parse the data prop first to see if this is an edit action
+    const { data } = this.props;
+
+    if (data) {
+      // Check if data contains state fields, and if so, update the state
+      for (const key of Object.keys(data)) {
+        if (key in this.state) {
+          this.setState({
+            [key]: data[key], // so that we won't end up with blank states for editing
+          });
+        }
+      }
+    }
+    
     this.handleCalculateTotal()
   }
   handleRowDel(items) {
@@ -53,7 +69,7 @@ class InvoiceForm extends React.Component {
     this.setState(this.state.items);
   };
   handleAddEvent(evt) {
-    var id = (+ new Date() + Math.floor(Math.random() * 999999)).toString(36);
+    var id = generateId();
     var items = {
       id: id,
       name: '',
@@ -118,12 +134,46 @@ class InvoiceForm extends React.Component {
   };
   openModal = (event) => {
     event.preventDefault()
+    if(this.props.usedNumbers.includes(parseInt(this.state.invoiceNumber))) {
+      alert('This invoice number has already been used! Please choose another.');
+      this.setState({ invoiceNumber: '' })
+      return;
+    }
     this.handleCalculateTotal()
     this.setState({isOpen: true})
   };
-  closeModal = (event) => this.setState({isOpen: false});
+  closeModal = (event) => {
+    this.setState({isOpen: false});
+  };
   goBack = () => {
     this.props.navigate(-1);
+  }
+  saveInvoice = () => {
+    this.handleCalculateTotal()
+    const invoice = {
+      id: this.props.isEdit ? this.props.data.id : generateId(),
+      currency: this.state.currency,
+      currentDate: this.state.currentDate,
+      invoiceNumber: this.state.invoiceNumber,
+      dateOfIssue: this.state.dateOfIssue,
+      billTo: this.state.billTo,
+      billToEmail: this.state.billToEmail,
+      billToAddress: this.state.billToAddress,
+      billFrom: this.state.billFrom,
+      billFromEmail: this.state.billFromEmail,
+      billFromAddress: this.state.billFromAddress,
+      notes: this.state.notes,
+      total: this.state.total,
+      subTotal: this.state.subTotal,
+      taxRate: this.state.taxRate,
+      taxAmmount: this.state.taxAmmount,
+      discountRate: this.state.discountRate,
+      discountAmmount: this.state.discountAmmount,
+      items: this.state.items || []
+    }
+
+    this.props.isEdit ? this.props.editInvoice(invoice) : this.props.addInvoice(invoice);
+    this.goBack();
   }
   render() {
     return (<Form onSubmit={this.openModal}>
@@ -131,9 +181,9 @@ class InvoiceForm extends React.Component {
         <Col md={8} lg={9}>
           <Card className="p-4 p-xl-5 my-3 my-xl-4">
             <div className="d-flex flex-row align-items-start justify-content-between mb-3">
-              <div class="d-flex flex-column">
+              <div className="d-flex flex-column">
                 <div className="d-flex flex-column">
-                  <div class="mb-2">
+                  <div className="mb-2">
                     <span className="fw-bold">Current&nbsp;Date:&nbsp;</span>
                     <span className="current-date">{new Date().toLocaleDateString()}</span>
                   </div>
@@ -209,9 +259,8 @@ class InvoiceForm extends React.Component {
         </Col>
         <Col md={4} lg={3}>
           <div className="sticky-top pt-md-3 pt-xl-4">
-            <Button variant="primary" type="submit" className="d-block w-100">Review Invoice</Button>
-            <Button variant='outline-primary' onClick={this.goBack} className='d-block w-100 mt-2'>Save Invoice</Button>
-            <InvoiceModal showModal={this.state.isOpen} closeModal={this.closeModal} info={this.state} items={this.state.items} currency={this.state.currency} subTotal={this.state.subTotal} taxAmmount={this.state.taxAmmount} discountAmmount={this.state.discountAmmount} total={this.state.total}/>
+            <Button variant="primary" type="submit" className="d-block w-100">Review & Save Invoice</Button>
+            <InvoiceModal showModal={this.state.isOpen} closeModal={this.closeModal} onSave={this.saveInvoice} info={this.state} items={this.state.items} currency={this.state.currency} subTotal={this.state.subTotal} taxAmmount={this.state.taxAmmount} discountAmmount={this.state.discountAmmount} total={this.state.total}/>
             <Form.Group className="mb-3">
               <Form.Label className="fw-bold">Currency:</Form.Label>
               <Form.Select onChange={event => this.onCurrencyChange({currency: event.target.value})} className="btn btn-light my-1" aria-label="Change Currency">
@@ -250,13 +299,31 @@ class InvoiceForm extends React.Component {
   }
 }
 
-const Editor = () => {
+const mapStateToProps = (state) => ({
+  invoices: state.manager
+})
+
+const mapDispatchToProps = (dispatch) => ({
+  addInvoice: (invoice) => dispatch({ type: 'add', payload: invoice }),
+  editInvoice: (invoice) => dispatch({ type: 'edit', payload: invoice })
+})
+
+const Editor = ({ invoices, addInvoice, editInvoice }) => {
 
   const navigate = useNavigate()
+  const location = useLocation()
+
+  const { invoice } = location.state || {}
+  const forbiddenInvoiceNumbers = getUsedNumbers(invoices)
 
   return <InvoiceForm 
     navigate={navigate}
+    addInvoice={addInvoice}
+    editInvoice={editInvoice}
+    usedNumbers={invoice ? forbiddenInvoiceNumbers.filter(item => item !== parseInt(invoice.invoiceNumber)) : forbiddenInvoiceNumbers }
+    data={invoice || {}}
+    isEdit={invoice === undefined ? false : true}
   />
 }
 
-export default Editor;
+export default connect(mapStateToProps, mapDispatchToProps)(Editor);

@@ -12,6 +12,15 @@
     background-color: #e6e6e6;
 }
 
+@media (min-width:992px) and (max-width: 1400px) {
+    .invoice {
+        width: 70%;
+    }
+    .actions {
+        width: 30%;
+    }
+}
+
 /* Custom CSS for 'xs' screen sizes */
 @media (max-width: 767px) {
     .item {

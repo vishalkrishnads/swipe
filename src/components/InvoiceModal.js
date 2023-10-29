@@ -5,7 +5,7 @@ import Col from 'react-bootstrap/Col';
 import Button from 'react-bootstrap/Button';
 import Table from 'react-bootstrap/Table';
 import Modal from 'react-bootstrap/Modal';
-import { BiPaperPlane, BiCloudDownload } from "react-icons/bi";
+import { BiPaperPlane, BiCloudDownload, BiSave } from "react-icons/bi";
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf'
 
@@ -133,12 +133,17 @@ class InvoiceModal extends React.Component {
           </div>
           <div className="pb-4 px-4">
             <Row>
-              <Col md={6}>
-                <Button variant="primary" className="d-block w-100" onClick={GenerateInvoice}>
+              {this.props.onSave ? <Col md={4}>
+                <Button variant="primary" className="d-block w-100" onClick={this.props.onSave}>
+                  <BiSave style={{width: '15px', height: '15px', marginTop: '-3px'}} className="me-2"/>Save Invoice
+                </Button>                
+              </Col> : null}
+              <Col md={this.props.onSave ? 4 : 6}>
+                <Button variant={this.props.onSave ? "outline-primary" : "primary"} className="d-block w-100 mt-3 mt-md-0" onClick={GenerateInvoice}>
                   <BiPaperPlane style={{width: '15px', height: '15px', marginTop: '-3px'}} className="me-2"/>Send Invoice
                 </Button>
               </Col>
-              <Col md={6}>
+              <Col md={this.props.onSave ? 4 : 6}>
                 <Button variant="outline-primary" className="d-block w-100 mt-3 mt-md-0" onClick={GenerateInvoice}>
                   <BiCloudDownload style={{width: '16px', height: '16px', marginTop: '-3px'}} className="me-2"/>
                   Download Copy
