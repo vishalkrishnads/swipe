@@ -1,3 +1,9 @@
+/*
+  This file contains the pop up modal that shows the details of an invoice
+  Apart from a new 'Save Invoice' button, none of the code has been changed.
+  The button only pops up the editor page. (by checking if this.props.onSave exists)
+*/
+
 import React from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Row from 'react-bootstrap/Row';

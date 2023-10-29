@@ -1,3 +1,9 @@
+/* 
+    This file contains the newly built home screen which shows a list of all invoices
+    Each invoice has action buttons to copy, edit & delete it.
+    Clicking on an invoice will open it. The page also has a New Invoice button for creating a new invoice.
+*/
+
 import React, { useState } from 'react'
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Row, Col, ListGroup, Button, Card } from 'react-bootstrap'
@@ -12,10 +18,13 @@ const Home = ({ invoices, deleteInvoice, copyInvoice }) => {
     const navigate = useNavigate();
     const [activeInvoice, setActiveInvoice] = useState({})
 
+    // adding and editing nav actions are same. add doesn't need to have a payload
+    // editor will figure out that this is add because of the lack of payload
     const addInvoice = () => {
         navigate('/editor')
     }
 
+    // send the invoice to be edited as payload for edit action
     const editInvoice = (invoice) => {
         navigate('/editor', {
             state: {

@@ -1,3 +1,7 @@
+/* 
+  This file contains an editable text field for the items in the form.
+  All the code stays the same as the original source. No modifications have been made. 
+*/
 import React from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Form from 'react-bootstrap/Form';
