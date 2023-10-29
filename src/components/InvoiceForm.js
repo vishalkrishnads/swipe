@@ -8,8 +8,9 @@ import Card from 'react-bootstrap/Card';
 import InvoiceItem from './InvoiceItem';
 import InvoiceModal from './InvoiceModal';
 import InputGroup from 'react-bootstrap/InputGroup';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { connect } from 'react-redux';
+import { getUsedNumbers, generateId } from '../redux/reducers/invoicesReducer';
 
 class InvoiceForm extends React.Component {
   constructor(props) {
@@ -46,6 +47,20 @@ class InvoiceForm extends React.Component {
     this.editField = this.editField.bind(this);
   }
   componentDidMount(prevProps) {
+    // parse the data prop first to see if this is an edit action
+    const { data } = this.props;
+
+    if (data) {
+      // Check if data contains state fields, and if so, update the state
+      for (const key of Object.keys(data)) {
+        if (key in this.state) {
+          this.setState({
+            [key]: data[key], // so that we won't end up with blank states for editing
+          });
+        }
+      }
+    }
+    
     this.handleCalculateTotal()
   }
   handleRowDel(items) {
@@ -54,7 +69,7 @@ class InvoiceForm extends React.Component {
     this.setState(this.state.items);
   };
   handleAddEvent(evt) {
-    var id = (+ new Date() + Math.floor(Math.random() * 999999)).toString(36);
+    var id = generateId();
     var items = {
       id: id,
       name: '',
@@ -119,12 +134,15 @@ class InvoiceForm extends React.Component {
   };
   openModal = (event) => {
     event.preventDefault()
+    if(this.props.usedNumbers.includes(parseInt(this.state.invoiceNumber))) {
+      alert('This invoice number has already been used! Please choose another.');
+      this.setState({ invoiceNumber: '' })
+      return;
+    }
     this.handleCalculateTotal()
     this.setState({isOpen: true})
-    // this.saveInvoice();
   };
   closeModal = (event) => {
-    // this.goBack();
     this.setState({isOpen: false});
   };
   goBack = () => {
@@ -132,8 +150,8 @@ class InvoiceForm extends React.Component {
   }
   saveInvoice = () => {
     this.handleCalculateTotal()
-    this.props.addInvoice({
-      id: (+ new Date() + Math.floor(Math.random() * 999999)).toString(36),
+    const invoice = {
+      id: this.props.isEdit ? this.props.data.id : generateId(),
       currency: this.state.currency,
       currentDate: this.state.currentDate,
       invoiceNumber: this.state.invoiceNumber,
@@ -152,7 +170,9 @@ class InvoiceForm extends React.Component {
       discountRate: this.state.discountRate,
       discountAmmount: this.state.discountAmmount,
       items: this.state.items || []
-    });
+    }
+
+    this.props.isEdit ? this.props.editInvoice(invoice) : this.props.addInvoice(invoice);
     this.goBack();
   }
   render() {
@@ -161,9 +181,9 @@ class InvoiceForm extends React.Component {
         <Col md={8} lg={9}>
           <Card className="p-4 p-xl-5 my-3 my-xl-4">
             <div className="d-flex flex-row align-items-start justify-content-between mb-3">
-              <div class="d-flex flex-column">
+              <div className="d-flex flex-column">
                 <div className="d-flex flex-column">
-                  <div class="mb-2">
+                  <div className="mb-2">
                     <span className="fw-bold">Current&nbsp;Date:&nbsp;</span>
                     <span className="current-date">{new Date().toLocaleDateString()}</span>
                   </div>
@@ -177,11 +197,7 @@ class InvoiceForm extends React.Component {
               </div>
               <div className="d-flex flex-row align-items-center">
                 <span className="fw-bold me-2">Invoice&nbsp;Number:&nbsp;</span>
-                <Form.Control type="number" value={this.state.invoiceNumber} name={"invoiceNumber"} onChange={(event) => {
-                  if(!this.props.usedNumbers.includes(parseInt(event.target.value)))
-                    this.editField(event)
-                  else alert('This invoice number has already been used! Please choose another.')
-                }} min="1" style={{
+                <Form.Control type="number" value={this.state.invoiceNumber} name={"invoiceNumber"} onChange={(event) => this.editField(event)} min="1" style={{
                     maxWidth: '70px'
                   }} required="required"/>
               </div>
@@ -243,7 +259,7 @@ class InvoiceForm extends React.Component {
         </Col>
         <Col md={4} lg={3}>
           <div className="sticky-top pt-md-3 pt-xl-4">
-            <Button variant="primary" type="submit" className="d-block w-100">Save & Review Invoice</Button>
+            <Button variant="primary" type="submit" className="d-block w-100">Review & Save Invoice</Button>
             <InvoiceModal showModal={this.state.isOpen} closeModal={this.closeModal} onSave={this.saveInvoice} info={this.state} items={this.state.items} currency={this.state.currency} subTotal={this.state.subTotal} taxAmmount={this.state.taxAmmount} discountAmmount={this.state.discountAmmount} total={this.state.total}/>
             <Form.Group className="mb-3">
               <Form.Label className="fw-bold">Currency:</Form.Label>
@@ -295,17 +311,18 @@ const mapDispatchToProps = (dispatch) => ({
 const Editor = ({ invoices, addInvoice, editInvoice }) => {
 
   const navigate = useNavigate()
+  const location = useLocation()
 
-  const getUsedNumbers = () => {
-    let list = [];
-    for(const each of invoices) list.push(parseInt(each.invoiceNumber))
-    return list;
-  }
+  const { invoice } = location.state || {}
+  const forbiddenInvoiceNumbers = getUsedNumbers(invoices)
 
   return <InvoiceForm 
     navigate={navigate}
     addInvoice={addInvoice}
-    usedNumbers={getUsedNumbers()}
+    editInvoice={editInvoice}
+    usedNumbers={invoice ? forbiddenInvoiceNumbers.filter(item => item !== parseInt(invoice.invoiceNumber)) : forbiddenInvoiceNumbers }
+    data={invoice || {}}
+    isEdit={invoice === undefined ? false : true}
   />
 }
 

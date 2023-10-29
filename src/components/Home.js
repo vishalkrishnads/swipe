@@ -7,14 +7,21 @@ import { connect } from 'react-redux';
 import './styles.css'
 import InvoiceModal from './InvoiceModal';
 
-const Home = ({ invoices, deleteInvoice }) => {
+const Home = ({ invoices, deleteInvoice, copyInvoice }) => {
 
     const navigate = useNavigate();
     const [activeInvoice, setActiveInvoice] = useState({})
 
     const addInvoice = () => {
-        console.log(invoices)
         navigate('/editor')
+    }
+
+    const editInvoice = (invoice) => {
+        navigate('/editor', {
+            state: {
+                invoice
+            }
+        })
     }
 
     const Item = ({ invoice }) => {
@@ -24,11 +31,11 @@ const Home = ({ invoices, deleteInvoice }) => {
                     <h5 className='m-0'>{invoice.billFrom}</h5>
                     <p className='m-0'>Invoice #{invoice.invoiceNumber}</p>
                 </Col>
-                <Col lg={2} md={6} xs={12}>
+                <Col lg={2} md={6} xs={12} className='actions'>
                     <div style={{ height: '100%' }} className="d-flex justify-content-end align-items-center gap-2">
-                        <BiCopy style={{ height: '38px', width: '38px', padding: '7.5px' }} className="text-primary mt-1 btn" />
-                        <BiEdit style={{ height: '38px', width: '38px', padding: '7.5px' }} className="text-primary mt-1 btn" />
-                        <BiTrash onClick={() => deleteInvoice(invoice)} style={{ height: '38px', width: '38px', padding: '7.5px' }} className="text-white mt-1 btn btn-danger" />
+                        <BiCopy title='Copy to a new invoice' onClick={() => copyInvoice(invoice)} style={{ height: '38px', width: '38px', padding: '7.5px' }} className="text-primary mt-1 btn" />
+                        <BiEdit title='Edit this invoice' onClick={() => editInvoice(invoice)} style={{ height: '38px', width: '38px', padding: '7.5px' }} className="text-primary mt-1 btn" />
+                        <BiTrash title='Delete this invoice' onClick={() => deleteInvoice(invoice)} style={{ height: '38px', width: '38px', padding: '7.5px' }} className="text-white mt-1 btn btn-danger" />
                     </div>
                 </Col>
             </Row>
@@ -41,7 +48,7 @@ const Home = ({ invoices, deleteInvoice }) => {
                 {invoices.length > 0 ? <Card.Body style={{ maxHeight: '100%', overflowY: 'auto' }}>
                     <ListGroup>
                         {invoices.map((item, index) => {
-                            return <Item invoice={item} />
+                            return <Item key={index} invoice={item} />
                         })}
                     </ListGroup>
                 </Card.Body> :
@@ -72,6 +79,7 @@ const Home = ({ invoices, deleteInvoice }) => {
         {invoices.length > 0 ? <Col lg={3}>
             <div className="sticky-top pt-md-3 pt-xl-4">
                 <Button variant="primary" onClick={addInvoice} className="d-block w-100">New Invoice</Button>
+                <p className='text-center'>Use the action buttons near each invoice to copy, edit & delete them</p>
             </div>
         </Col> : null}
     </Row>
@@ -84,6 +92,7 @@ const mapStateToProps = (state) => ({
 const mapDispatchToProps = (dispatch) => ({
     addInvoice: (invoice) => dispatch({ type: 'add', payload: invoice }),
     deleteInvoice: (invoice) => dispatch({ type: 'delete', payload: invoice }),
+    copyInvoice: (invoice) => dispatch({ type: 'copy', payload: invoice })
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(Home);
