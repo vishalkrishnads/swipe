@@ -1,3 +1,8 @@
+/*
+  This file contains the React component for each invoice item in the invoice form.
+  This hasn't been modified and sticks to the original source code.
+*/
+
 import React from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Table from 'react-bootstrap/Table';

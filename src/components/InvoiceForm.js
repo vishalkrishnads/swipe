@@ -1,3 +1,9 @@
+/* 
+  This file exists in the original source code. It contains the form for adding invoices.
+  I have repurposed it to also serve as the edit form for already saved invoices.
+  The class component `InvoiceForm` has been wrapped in a new functional component `Editor` for using `react-router`
+*/
+
 import React from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Row from 'react-bootstrap/Row';
@@ -60,6 +66,7 @@ class InvoiceForm extends React.Component {
         }
       }
     }
+    // in this way, this component can be reused as the edit screen also
     
     this.handleCalculateTotal()
   }
@@ -134,6 +141,9 @@ class InvoiceForm extends React.Component {
   };
   openModal = (event) => {
     event.preventDefault()
+
+    // i'm trying to avoid the duplication of invoice numbers
+    // this check simply makes sure that invoice numbers aren't duplicated
     if(this.props.usedNumbers.includes(parseInt(this.state.invoiceNumber))) {
       alert('This invoice number has already been used! Please choose another.');
       this.setState({ invoiceNumber: '' })
@@ -150,6 +160,8 @@ class InvoiceForm extends React.Component {
   }
   saveInvoice = () => {
     this.handleCalculateTotal()
+
+    // create an invoice with all the collected details
     const invoice = {
       id: this.props.isEdit ? this.props.data.id : generateId(),
       currency: this.state.currency,
@@ -172,6 +184,7 @@ class InvoiceForm extends React.Component {
       items: this.state.items || []
     }
 
+    // depending on the requirement, invoke the required action
     this.props.isEdit ? this.props.editInvoice(invoice) : this.props.addInvoice(invoice);
     this.goBack();
   }
@@ -308,6 +321,7 @@ const mapDispatchToProps = (dispatch) => ({
   editInvoice: (invoice) => dispatch({ type: 'edit', payload: invoice })
 })
 
+// this component is necessary because a class component doesn't allow hooks like useLocation() or useNavigate()
 const Editor = ({ invoices, addInvoice, editInvoice }) => {
 
   const navigate = useNavigate()
@@ -322,7 +336,7 @@ const Editor = ({ invoices, addInvoice, editInvoice }) => {
     editInvoice={editInvoice}
     usedNumbers={invoice ? forbiddenInvoiceNumbers.filter(item => item !== parseInt(invoice.invoiceNumber)) : forbiddenInvoiceNumbers }
     data={invoice || {}}
-    isEdit={invoice === undefined ? false : true}
+    isEdit={invoice === undefined ? false : true} // if there is no invoice object, then this is an add action
   />
 }
 
